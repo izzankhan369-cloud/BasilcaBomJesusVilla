@@ -1,0 +1,819 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casa Verde Villa – Old Goa</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP + ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sand:    '#F5F1E6',
+            espresso:'#2A1B12',
+            gold:    '#D4AF37',
+            goldLight:'#E8C84A',
+          },
+          fontFamily: {
+            display: ['Playfair Display', 'serif'],
+            body:    ['Inter', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background-color: #F5F1E6;
+      color: #2A1B12;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: #F5F1E6; }
+    ::-webkit-scrollbar-thumb { background: #D4AF37; border-radius: 3px; }
+
+    /* ── Nav ── */
+    #navbar {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      transition: background 0.4s ease, box-shadow 0.4s ease;
+    }
+    #navbar.scrolled {
+      background: rgba(245,241,230,0.96);
+      box-shadow: 0 1px 24px rgba(42,27,18,0.08);
+      backdrop-filter: blur(8px);
+    }
+
+    /* ── Hero ── */
+    .hero-bg {
+      background-image: url('/images/hero.jpeg');
+      background-size: cover;
+      background-position: center;
+    }
+    .hero-overlay {
+      background: linear-gradient(
+        to bottom,
+        rgba(42,27,18,0.35) 0%,
+        rgba(42,27,18,0.55) 60%,
+        rgba(42,27,18,0.75) 100%
+      );
+    }
+
+    /* ── Gold divider ── */
+    .gold-rule {
+      display: block;
+      width: 56px; height: 2px;
+      background: #D4AF37;
+      margin: 0 auto;
+    }
+
+    /* ── Gallery ── */
+    .gallery-item { overflow: hidden; }
+    .gallery-item img {
+      transition: transform 0.6s cubic-bezier(0.25,0.46,0.45,0.94);
+      will-change: transform;
+    }
+    .gallery-item:hover img { transform: scale(1.07); }
+
+    /* ── Amenity card ── */
+    .amenity-card {
+      border: 1px solid rgba(212,175,55,0.25);
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+    }
+    .amenity-card:hover {
+      border-color: #D4AF37;
+      box-shadow: 0 8px 32px rgba(212,175,55,0.12);
+      transform: translateY(-4px);
+    }
+
+    /* ── Form inputs ── */
+    .form-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid rgba(42,27,18,0.25);
+      padding: 10px 0;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.9rem;
+      color: #2A1B12;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+    .form-input::placeholder { color: rgba(42,27,18,0.4); }
+    .form-input:focus { border-color: #D4AF37; }
+
+    /* ── CTA Button ── */
+    .btn-gold {
+      display: inline-block;
+      padding: 14px 36px;
+      border: 1px solid #D4AF37;
+      color: #F5F1E6;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.35s;
+      background: transparent;
+    }
+    .btn-gold::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: #D4AF37;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      z-index: 0;
+    }
+    .btn-gold:hover::before { transform: scaleX(1); }
+    .btn-gold:hover { color: #2A1B12; }
+    .btn-gold span { position: relative; z-index: 1; }
+
+    .btn-dark {
+      display: inline-block;
+      padding: 14px 36px;
+      background: #2A1B12;
+      color: #F5F1E6;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: 1px solid #2A1B12;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.35s;
+    }
+    .btn-dark::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: #D4AF37;
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.35s cubic-bezier(0.25,0.46,0.45,0.94);
+      z-index: 0;
+    }
+    .btn-dark:hover::before { transform: scaleX(1); }
+    .btn-dark:hover { color: #2A1B12; border-color: #D4AF37; }
+    .btn-dark span { position: relative; z-index: 1; }
+
+    /* ── Map placeholder ── */
+    .map-placeholder {
+      background: #e8e0d0;
+      position: relative;
+      overflow: hidden;
+    }
+    .map-placeholder::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 20px,
+        rgba(212,175,55,0.05) 20px,
+        rgba(212,175,55,0.05) 40px
+      );
+    }
+
+    /* ── Social icons ── */
+    .social-icon {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(245,241,230,0.25);
+      border-radius: 50%;
+      transition: border-color 0.3s, background 0.3s;
+      color: #F5F1E6;
+    }
+    .social-icon:hover {
+      border-color: #D4AF37;
+      background: rgba(212,175,55,0.15);
+    }
+
+    /* ── GSAP initial states ── */
+    .reveal { opacity: 0; transform: translateY(40px); }
+    .hero-line { opacity: 0; }
+  </style>
+</head>
+
+<body>
+
+<!-- ════════════════════════════════════════
+     NAVIGATION
+════════════════════════════════════════ -->
+<nav id="navbar" class="py-5 px-8 md:px-16">
+  <div class="max-w-7xl mx-auto flex items-center justify-between">
+    <!-- Logo -->
+    <a href="#hero" class="flex flex-col leading-none">
+      <span style="font-family:'Playfair Display',serif; font-size:1.15rem; color:#D4AF37; letter-spacing:0.04em;">
+        Casa Verde
+      </span>
+      <span style="font-family:'Inter',sans-serif; font-size:0.6rem; letter-spacing:0.22em; text-transform:uppercase; color:rgba(245,241,230,0.7);" id="nav-sub">
+        Villa · Old Goa
+      </span>
+    </a>
+
+    <!-- Desktop links -->
+    <ul class="hidden md:flex items-center gap-10">
+      <li><a href="#about"    class="nav-link text-xs tracking-widest uppercase" style="color:rgba(245,241,230,0.85); transition:color 0.3s;">About</a></li>
+      <li><a href="#gallery"  class="nav-link text-xs tracking-widest uppercase" style="color:rgba(245,241,230,0.85); transition:color 0.3s;">Gallery</a></li>
+      <li><a href="#amenities"class="nav-link text-xs tracking-widest uppercase" style="color:rgba(245,241,230,0.85); transition:color 0.3s;">Amenities</a></li>
+      <li><a href="#location" class="nav-link text-xs tracking-widest uppercase" style="color:rgba(245,241,230,0.85); transition:color 0.3s;">Location</a></li>
+      <li>
+        <a href="#booking" class="btn-gold text-xs py-3 px-6"><span>Book Now</span></a>
+      </li>
+    </ul>
+
+    <!-- Mobile hamburger -->
+    <button id="menuBtn" class="md:hidden flex flex-col gap-1.5 p-1" aria-label="Menu">
+      <span class="hamburger-line block w-6 h-px bg-sand transition-all"></span>
+      <span class="hamburger-line block w-4 h-px bg-sand transition-all"></span>
+      <span class="hamburger-line block w-6 h-px bg-sand transition-all"></span>
+    </button>
+  </div>
+
+  <!-- Mobile drawer -->
+  <div id="mobileMenu" class="md:hidden overflow-hidden max-h-0 transition-all duration-500" style="background:rgba(42,27,12,0.97);">
+    <ul class="flex flex-col items-center gap-6 py-8">
+      <li><a href="#about"     class="mobile-link text-xs tracking-widest uppercase text-sand opacity-80">About</a></li>
+      <li><a href="#gallery"   class="mobile-link text-xs tracking-widest uppercase text-sand opacity-80">Gallery</a></li>
+      <li><a href="#amenities" class="mobile-link text-xs tracking-widest uppercase text-sand opacity-80">Amenities</a></li>
+      <li><a href="#location"  class="mobile-link text-xs tracking-widest uppercase text-sand opacity-80">Location</a></li>
+      <li><a href="#booking"   class="mobile-link text-xs tracking-widest uppercase text-gold">Book Now</a></li>
+    </ul>
+  </div>
+</nav>
+
+
+<!-- ════════════════════════════════════════
+     HERO
+════════════════════════════════════════ -->
+<section id="hero" class="hero-bg relative min-h-screen flex items-center justify-center">
+  <div class="hero-overlay absolute inset-0"></div>
+
+  <div class="relative z-10 text-center px-6 max-w-3xl mx-auto">
+    <!-- Eyebrow -->
+    <p class="hero-line mb-4 text-xs tracking-[0.28em] uppercase" style="color:#D4AF37; font-family:'Inter',sans-serif;">
+      Old Goa · Heritage Estate
+    </p>
+
+    <!-- Main heading -->
+    <h1 class="hero-line mb-4 leading-tight" style="font-family:'Playfair Display',serif; font-size:clamp(2.8rem,7vw,5.5rem); color:#F5F1E6;">
+      Casa Verde<br/>
+      <em style="color:#D4AF37;">Villa</em>
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="hero-line mb-10 text-base md:text-lg font-light tracking-wide" style="color:rgba(245,241,230,0.8); font-family:'Inter',sans-serif;">
+      A Heritage Escape in Old Goa
+    </p>
+
+    <!-- CTA -->
+    <div class="hero-line">
+      <a href="#booking" class="btn-gold"><span>Check Availability</span></a>
+    </div>
+  </div>
+
+  <!-- Scroll hint -->
+  <div class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 opacity-60">
+    <span class="text-xs tracking-widest uppercase" style="color:#F5F1E6; font-family:'Inter',sans-serif;">Scroll</span>
+    <div style="width:1px; height:48px; background:linear-gradient(to bottom,#F5F1E6,transparent);"></div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     ABOUT
+════════════════════════════════════════ -->
+<section id="about" class="py-28 px-6 md:px-16">
+  <div class="max-w-6xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+
+    <!-- Text -->
+    <div class="reveal">
+      <p class="text-xs tracking-[0.24em] uppercase mb-4" style="color:#D4AF37; font-family:'Inter',sans-serif;">The Villa</p>
+      <h2 class="mb-6 leading-tight" style="font-family:'Playfair Display',serif; font-size:clamp(2rem,4vw,3rem); color:#2A1B12;">
+        Where Colonial<br/>Grace Meets<br/><em>Tropical Serenity</em>
+      </h2>
+      <span class="gold-rule mb-8" style="margin-left:0;"></span>
+      <p class="mt-8 text-sm leading-relaxed mb-5" style="color:rgba(42,27,18,0.72); font-family:'Inter',sans-serif; font-weight:300;">
+        Nestled amid centuries-old spice groves and Portuguese-era architecture, Casa Verde Villa is a private
+        sanctuary for those who seek beauty in slowness. Originally built in 1897, the estate has been lovingly
+        restored to preserve every carved teak doorway, terracotta floor tile, and frangipani-scented courtyard.
+      </p>
+      <p class="text-sm leading-relaxed mb-10" style="color:rgba(42,27,18,0.72); font-family:'Inter',sans-serif; font-weight:300;">
+        Eight curated suites, a private plunge pool, and a dedicated butler ensure that each stay is as effortless
+        as it is unforgettable. This is Old Goa at its most intimate.
+      </p>
+      <a href="#gallery" class="btn-dark"><span>Explore Rooms</span></a>
+    </div>
+
+    <!-- Image -->
+    <div class="reveal gallery-item rounded-sm overflow-hidden shadow-xl" style="aspect-ratio:4/5;">
+      <img
+        src="/images/villa1.jpeg"
+        alt="Casa Verde Villa interior"
+        loading="lazy"
+        class="w-full h-full object-cover"
+      />
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     GALLERY
+════════════════════════════════════════ -->
+<section id="gallery" class="py-24 px-6 md:px-16" style="background:rgba(42,27,18,0.04);">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="text-center reveal mb-16">
+      <p class="text-xs tracking-[0.24em] uppercase mb-3" style="color:#D4AF37; font-family:'Inter',sans-serif;">Gallery</p>
+      <h2 style="font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.8rem); color:#2A1B12;">
+        A Visual Journey
+      </h2>
+      <span class="gold-rule mt-5"></span>
+    </div>
+
+    <!-- Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+
+      <!-- Large left -->
+      <div class="reveal gallery-item md:col-span-7 rounded-sm overflow-hidden shadow-lg" style="aspect-ratio:16/10;">
+        <img src="/images/villa1.jpeg" alt="Villa suite" loading="lazy" class="w-full h-full object-cover" />
+      </div>
+
+      <!-- Right stacked -->
+      <div class="md:col-span-5 flex flex-col gap-4">
+        <div class="reveal gallery-item rounded-sm overflow-hidden shadow-lg flex-1" style="min-height:200px;">
+          <img src="/images/villa2.jpeg" alt="Villa pool" loading="lazy" class="w-full h-full object-cover" />
+        </div>
+        <div class="reveal gallery-item rounded-sm overflow-hidden shadow-lg flex-1" style="min-height:200px;">
+          <img src="/images/villa3.jpeg" alt="Villa garden" loading="lazy" class="w-full h-full object-cover" />
+        </div>
+      </div>
+
+      <!-- Bottom row -->
+      <div class="reveal gallery-item md:col-span-4 rounded-sm overflow-hidden shadow-lg" style="aspect-ratio:4/3;">
+        <img src="/images/villa2.jpeg" alt="Villa dining" loading="lazy" class="w-full h-full object-cover" />
+      </div>
+      <div class="reveal gallery-item md:col-span-4 rounded-sm overflow-hidden shadow-lg" style="aspect-ratio:4/3;">
+        <img src="/images/villa3.jpeg" alt="Villa courtyard" loading="lazy" class="w-full h-full object-cover" />
+      </div>
+      <div class="reveal gallery-item md:col-span-4 rounded-sm overflow-hidden shadow-lg" style="aspect-ratio:4/3;">
+        <img src="/images/villa1.jpeg" alt="Villa terrace" loading="lazy" class="w-full h-full object-cover" />
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     AMENITIES
+════════════════════════════════════════ -->
+<section id="amenities" class="py-28 px-6 md:px-16">
+  <div class="max-w-5xl mx-auto">
+
+    <div class="text-center reveal mb-16">
+      <p class="text-xs tracking-[0.24em] uppercase mb-3" style="color:#D4AF37; font-family:'Inter',sans-serif;">Offerings</p>
+      <h2 style="font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.8rem); color:#2A1B12;">
+        Curated Comforts
+      </h2>
+      <span class="gold-rule mt-5"></span>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+
+      <!-- Private Pool -->
+      <div class="reveal amenity-card rounded-sm p-6 flex flex-col items-center text-center gap-4" style="background:#F5F1E6;">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 26c2-3 4-3 6 0s4 3 6 0 4-3 6 0 4 3 6 0"/>
+          <path d="M4 20c2-3 4-3 6 0s4 3 6 0 4-3 6 0 4 3 6 0"/>
+          <rect x="11" y="6" width="14" height="10" rx="7"/>
+        </svg>
+        <p style="font-family:'Playfair Display',serif; font-size:0.85rem; color:#2A1B12;">Private Pool</p>
+        <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:rgba(42,27,18,0.55); line-height:1.5;">Exclusive plunge pool surrounded by tropical gardens</p>
+      </div>
+
+      <!-- Garden -->
+      <div class="reveal amenity-card rounded-sm p-6 flex flex-col items-center text-center gap-4" style="background:#F5F1E6;">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 30V16"/>
+          <path d="M18 16c0-6 8-10 8-10s-2 8-8 10"/>
+          <path d="M18 20c0-5-7-9-7-9s1 7 7 9"/>
+          <path d="M6 30h24"/>
+        </svg>
+        <p style="font-family:'Playfair Display',serif; font-size:0.85rem; color:#2A1B12;">Spice Garden</p>
+        <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:rgba(42,27,18,0.55); line-height:1.5;">Lush heritage garden with native flora and aromatic spices</p>
+      </div>
+
+      <!-- Breakfast -->
+      <div class="reveal amenity-card rounded-sm p-6 flex flex-col items-center text-center gap-4" style="background:#F5F1E6;">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 20h20l-2 8H10L8 20z"/>
+          <path d="M6 20h24"/>
+          <path d="M28 20c0-4-2-8-2-8s4 2 4 8"/>
+          <path d="M14 8c0 0 1 4 0 8M18 6c0 0 1 4 0 8M22 8c0 0 1 4 0 8"/>
+        </svg>
+        <p style="font-family:'Playfair Display',serif; font-size:0.85rem; color:#2A1B12;">Breakfast</p>
+        <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:rgba(42,27,18,0.55); line-height:1.5;">Daily Goan breakfast served in the open courtyard</p>
+      </div>
+
+      <!-- WiFi -->
+      <div class="reveal amenity-card rounded-sm p-6 flex flex-col items-center text-center gap-4" style="background:#F5F1E6;">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 27a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" fill="#D4AF37"/>
+          <path d="M12 22a8.5 8.5 0 0112 0"/>
+          <path d="M7 17a15 15 0 0122 0"/>
+          <path d="M3 12a21 21 0 0130 0"/>
+        </svg>
+        <p style="font-family:'Playfair Display',serif; font-size:0.85rem; color:#2A1B12;">High-Speed WiFi</p>
+        <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:rgba(42,27,18,0.55); line-height:1.5;">Seamless connectivity throughout the estate</p>
+      </div>
+
+      <!-- Ocean View -->
+      <div class="reveal amenity-card rounded-sm p-6 flex flex-col items-center text-center gap-4" style="background:#F5F1E6;">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 22c2-3 4-3 6 0s4 3 6 0 4-3 6 0 4 3 6 0"/>
+          <path d="M3 27c2-3 4-3 6 0s4 3 6 0 4-3 6 0 4 3 6 0"/>
+          <circle cx="18" cy="11" r="5"/>
+          <path d="M18 6V4M18 18v-2M26 11h2M10 11H8M24 7l1.4-1.4M12 7l-1.4-1.4"/>
+        </svg>
+        <p style="font-family:'Playfair Display',serif; font-size:0.85rem; color:#2A1B12;">Ocean View</p>
+        <p style="font-family:'Inter',sans-serif; font-size:0.7rem; color:rgba(42,27,18,0.55); line-height:1.5;">Panoramic views of the Arabian Sea from upper terraces</p>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     LOCATION
+════════════════════════════════════════ -->
+<section id="location" class="py-24 px-6 md:px-16" style="background:rgba(42,27,18,0.04);">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="text-center reveal mb-16">
+      <p class="text-xs tracking-[0.24em] uppercase mb-3" style="color:#D4AF37; font-family:'Inter',sans-serif;">Find Us</p>
+      <h2 style="font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.8rem); color:#2A1B12;">
+        Old Goa, India
+      </h2>
+      <span class="gold-rule mt-5"></span>
+    </div>
+
+    <div class="reveal grid md:grid-cols-3 gap-8 mb-10">
+      <div class="text-center">
+        <p class="text-xs tracking-widest uppercase mb-2" style="color:#D4AF37; font-family:'Inter',sans-serif;">Address</p>
+        <p class="text-sm leading-relaxed" style="color:rgba(42,27,18,0.7); font-family:'Inter',sans-serif; font-weight:300;">
+          Estate Road, near Basilica of Bom Jesus,<br/>Old Goa – 403 402, Goa, India
+        </p>
+      </div>
+      <div class="text-center">
+        <p class="text-xs tracking-widest uppercase mb-2" style="color:#D4AF37; font-family:'Inter',sans-serif;">By Airport</p>
+        <p class="text-sm leading-relaxed" style="color:rgba(42,27,18,0.7); font-family:'Inter',sans-serif; font-weight:300;">
+          35 minutes from Goa International Airport (GOI).<br/>Private transfers available.
+        </p>
+      </div>
+      <div class="text-center">
+        <p class="text-xs tracking-widest uppercase mb-2" style="color:#D4AF37; font-family:'Inter',sans-serif;">Nearby</p>
+        <p class="text-sm leading-relaxed" style="color:rgba(42,27,18,0.7); font-family:'Inter',sans-serif; font-weight:300;">
+          Basilica of Bom Jesus · Mandovi River<br/>Old Goa Heritage Walk
+        </p>
+      </div>
+    </div>
+
+    <!-- Map -->
+    <div class="reveal map-placeholder rounded-sm shadow-lg overflow-hidden" style="height:400px;">
+      <iframe
+        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3843.977!2d73.9116!3d15.5009!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3bbfc000b61b8f0b%3A0x1b5b6f6a6a6a6a6a!2sOld+Goa%2C+Goa!5e0!3m2!1sen!2sin!4v1700000000000"
+        width="100%" height="100%"
+        style="border:0; filter:sepia(20%) contrast(90%);"
+        allowfullscreen=""
+        loading="lazy"
+        referrerpolicy="no-referrer-when-downgrade"
+        title="Casa Verde Villa location map"
+      ></iframe>
+    </div>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     BOOKING INQUIRY
+════════════════════════════════════════ -->
+<section id="booking" class="py-28 px-6 md:px-16">
+  <div class="max-w-4xl mx-auto">
+
+    <div class="text-center reveal mb-16">
+      <p class="text-xs tracking-[0.24em] uppercase mb-3" style="color:#D4AF37; font-family:'Inter',sans-serif;">Reserve Your Stay</p>
+      <h2 style="font-family:'Playfair Display',serif; font-size:clamp(1.8rem,3.5vw,2.8rem); color:#2A1B12;">
+        Booking Inquiry
+      </h2>
+      <span class="gold-rule mt-5"></span>
+      <p class="mt-6 text-sm" style="color:rgba(42,27,18,0.6); font-family:'Inter',sans-serif; font-weight:300;">
+        Our reservations team will respond within 4 hours.
+      </p>
+    </div>
+
+    <form id="bookingForm" class="reveal" novalidate>
+      <div class="grid md:grid-cols-2 gap-x-12 gap-y-10">
+
+        <div>
+          <label class="block text-xs tracking-widest uppercase mb-1" style="color:#D4AF37; font-family:'Inter',sans-serif;">Full Name</label>
+          <input type="text" name="name" placeholder="Your full name" class="form-input" required autocomplete="name" />
+        </div>
+
+        <div>
+          <label class="block text-xs tracking-widest uppercase mb-1" style="color:#D4AF37; font-family:'Inter',sans-serif;">Email</label>
+          <input type="email" name="email" placeholder="your@email.com" class="form-input" required autocomplete="email" />
+        </div>
+
+        <div>
+          <label class="block text-xs tracking-widest uppercase mb-1" style="color:#D4AF37; font-family:'Inter',sans-serif;">Phone</label>
+          <input type="tel" name="phone" placeholder="+91 00000 00000" class="form-input" autocomplete="tel" />
+        </div>
+
+        <div>
+          <label class="block text-xs tracking-widest uppercase mb-1" style="color:#D4AF37; font-family:'Inter',sans-serif;">Guests</label>
+          <select name="guests" class="form-input" style="cursor:pointer;">
+            <option value="" disabled selected>Select guests</option>
+            <option value="1">1 Guest</option>
+            <option value="2">2 Guests</option>
+            <option value="3">3 Guests</option>
+            <option value="4">4 Guests</option>
+            <option value="5+">5+ Guests</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-xs tracking-widest uppercase mb-1" style="color:#D4AF37; font-family:'Inter',sans-serif;">Check-in</label>
+          <input type="date" name="checkin" class="form-input" required />
+        </div>
+
+        <div>
+          <label class="block text-xs tracking-widest uppercase mb-1" style="color:#D4AF37; font-family:'Inter',sans-serif;">Check-out</label>
+          <input type="date" name="checkout" class="form-input" required />
+        </div>
+
+      </div>
+
+      <div class="text-center mt-14">
+        <button type="submit" class="btn-dark"><span>Send Inquiry</span></button>
+      </div>
+
+      <!-- Success message -->
+      <p id="formSuccess" class="text-center mt-6 text-sm hidden" style="color:#D4AF37; font-family:'Inter',sans-serif;">
+        ✦ Thank you. We will be in touch shortly.
+      </p>
+    </form>
+
+  </div>
+</section>
+
+
+<!-- ════════════════════════════════════════
+     FOOTER
+════════════════════════════════════════ -->
+<footer class="py-16 px-8 md:px-16" style="background:#2A1B12;">
+  <div class="max-w-6xl mx-auto">
+
+    <div class="grid md:grid-cols-3 gap-12 mb-14">
+
+      <!-- Brand -->
+      <div>
+        <p style="font-family:'Playfair Display',serif; font-size:1.4rem; color:#D4AF37; letter-spacing:0.04em;" class="mb-1">
+          Casa Verde Villa
+        </p>
+        <p class="text-xs tracking-widest uppercase mb-5" style="color:rgba(245,241,230,0.4); font-family:'Inter',sans-serif;">
+          Old Goa · Est. 1897
+        </p>
+        <p class="text-sm leading-relaxed" style="color:rgba(245,241,230,0.55); font-family:'Inter',sans-serif; font-weight:300;">
+          A private heritage estate for discerning travellers who appreciate the art of unhurried luxury.
+        </p>
+      </div>
+
+      <!-- Contact -->
+      <div>
+        <p class="text-xs tracking-widest uppercase mb-5" style="color:#D4AF37; font-family:'Inter',sans-serif;">Contact</p>
+        <ul class="space-y-3">
+          <li class="flex items-start gap-3">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" class="mt-0.5 shrink-0">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span class="text-sm" style="color:rgba(245,241,230,0.6); font-family:'Inter',sans-serif; font-weight:300; line-height:1.6;">
+              Estate Road, near Basilica of Bom Jesus,<br/>Old Goa – 403 402, Goa, India
+            </span>
+          </li>
+          <li class="flex items-center gap-3">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" class="shrink-0">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.8a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+            </svg>
+            <a href="tel:+918000000000" class="text-sm" style="color:rgba(245,241,230,0.6); font-family:'Inter',sans-serif; font-weight:300; text-decoration:none; transition:color 0.3s;">+91 80000 00000</a>
+          </li>
+          <li class="flex items-center gap-3">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4AF37" stroke-width="1.5" stroke-linecap="round" class="shrink-0">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+            </svg>
+            <a href="mailto:stay@casaverdegoa.com" class="text-sm" style="color:rgba(245,241,230,0.6); font-family:'Inter',sans-serif; font-weight:300; text-decoration:none; transition:color 0.3s;">stay@casaverdegoa.com</a>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Follow -->
+      <div>
+        <p class="text-xs tracking-widest uppercase mb-5" style="color:#D4AF37; font-family:'Inter',sans-serif;">Follow</p>
+        <div class="flex gap-3 mb-6">
+
+          <!-- Instagram -->
+          <a href="#" class="social-icon" aria-label="Instagram">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="0.5" fill="currentColor"/>
+            </svg>
+          </a>
+
+          <!-- Facebook -->
+          <a href="#" class="social-icon" aria-label="Facebook">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+              <path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/>
+            </svg>
+          </a>
+
+          <!-- Twitter/X -->
+          <a href="#" class="social-icon" aria-label="X / Twitter">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+            </svg>
+          </a>
+
+        </div>
+        <p class="text-xs leading-relaxed" style="color:rgba(245,241,230,0.35); font-family:'Inter',sans-serif; font-weight:300;">
+          Tag us <span style="color:#D4AF37;">@casaverdegoa</span><br/>for a chance to be featured.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="pt-8 flex flex-col md:flex-row items-center justify-between gap-4" style="border-top:1px solid rgba(245,241,230,0.1);">
+      <p class="text-xs" style="color:rgba(245,241,230,0.25); font-family:'Inter',sans-serif;">
+        © 2025 Casa Verde Villa. All rights reserved.
+      </p>
+      <div class="flex gap-6">
+        <a href="#" class="text-xs" style="color:rgba(245,241,230,0.25); font-family:'Inter',sans-serif; text-decoration:none; transition:color 0.3s;">Privacy Policy</a>
+        <a href="#" class="text-xs" style="color:rgba(245,241,230,0.25); font-family:'Inter',sans-serif; text-decoration:none; transition:color 0.3s;">Terms</a>
+      </div>
+    </div>
+
+  </div>
+</footer>
+
+
+<!-- ════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════ -->
+<script>
+(function () {
+  'use strict';
+
+  /* ── Register ScrollTrigger ── */
+  gsap.registerPlugin(ScrollTrigger);
+
+  /* ── Navbar scroll state ── */
+  var navbar   = document.getElementById('navbar');
+  var navLinks = document.querySelectorAll('.nav-link');
+  var navSub   = document.getElementById('nav-sub');
+
+  window.addEventListener('scroll', function () {
+    if (window.scrollY > 60) {
+      navbar.classList.add('scrolled');
+      navLinks.forEach(function (l) { l.style.color = 'rgba(42,27,18,0.75)'; });
+      navSub.style.color = 'rgba(42,27,18,0.45)';
+    } else {
+      navbar.classList.remove('scrolled');
+      navLinks.forEach(function (l) { l.style.color = 'rgba(245,241,230,0.85)'; });
+      navSub.style.color = 'rgba(245,241,230,0.7)';
+    }
+  }, { passive: true });
+
+  /* ── Mobile menu toggle ── */
+  var menuBtn    = document.getElementById('menuBtn');
+  var mobileMenu = document.getElementById('mobileMenu');
+  var mobileLinks = document.querySelectorAll('.mobile-link');
+  var isOpen = false;
+
+  function toggleMenu() {
+    isOpen = !isOpen;
+    mobileMenu.style.maxHeight = isOpen ? mobileMenu.scrollHeight + 'px' : '0';
+  }
+
+  menuBtn.addEventListener('click', toggleMenu);
+  mobileLinks.forEach(function (l) {
+    l.addEventListener('click', function () { isOpen = true; toggleMenu(); });
+  });
+
+  /* ── Hero entrance animation ── */
+  var heroLines = document.querySelectorAll('.hero-line');
+  gsap.to(heroLines, {
+    opacity: 1,
+    y: 0,
+    duration: 1.1,
+    ease: 'power3.out',
+    stagger: 0.2,
+    delay: 0.3,
+    onStart: function () {
+      heroLines.forEach(function (el) {
+        el.style.transform = 'translateY(30px)';
+      });
+    }
+  });
+
+  /* ── Scroll reveal – all .reveal elements ── */
+  var revealEls = document.querySelectorAll('.reveal');
+
+  revealEls.forEach(function (el) {
+    gsap.fromTo(
+      el,
+      { opacity: 0, y: 50 },
+      {
+        opacity: 1,
+        y: 0,
+        duration: 0.9,
+        ease: 'power2.out',
+        scrollTrigger: {
+          trigger: el,
+          start: 'top 88%',
+          toggleActions: 'play none none none',
+        }
+      }
+    );
+  });
+
+  /* ── Smooth anchor scrolling ── */
+  document.querySelectorAll('a[href^="#"]').forEach(function (anchor) {
+    anchor.addEventListener('click', function (e) {
+      var target = document.querySelector(this.getAttribute('href'));
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+  });
+
+  /* ── Booking form submit ── */
+  var form    = document.getElementById('bookingForm');
+  var success = document.getElementById('formSuccess');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    success.classList.remove('hidden');
+    gsap.fromTo(success, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.5 });
+    setTimeout(function () { form.reset(); }, 200);
+  });
+
+  /* ── Set min dates on date inputs ── */
+  var today   = new Date().toISOString().split('T')[0];
+  var checkin = form.querySelector('[name="checkin"]');
+  var checkout= form.querySelector('[name="checkout"]');
+  if (checkin)  checkin.setAttribute('min', today);
+  if (checkout) checkout.setAttribute('min', today);
+
+  checkin && checkin.addEventListener('change', function () {
+    if (checkout && this.value) {
+      checkout.setAttribute('min', this.value);
+      if (checkout.value && checkout.value < this.value) {
+        checkout.value = '';
+      }
+    }
+  });
+
+})();
+</script>
+
+</body>
+</html>
+```
